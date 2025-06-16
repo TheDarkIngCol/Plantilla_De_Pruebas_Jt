@@ -10,12 +10,23 @@ jobs:
     runs-on: ubuntu-latest
     steps: 
       - name: Saludo
-        run: echo "Hola, este es mi primer pipeline 🚀"
+        run: echo "Hola, este es mi primer pipeline :)"
   suma_de_numeros: 
     runs-on: ubuntu-latest
     steps:
       - name: Suma de números
         run: |
-          suma= $(( ${{vars.VARIABLE_A}} + ${{vars.VARIABLE_B}} ))
+          suma=$(( ${{vars.VARIABLE_A}} + ${{vars.VARIABLE_B}} ))
           echo "La suma de ${{vars.VARIABLE_A}} y ${{vars.VARIABLE_B}} es $suma"
+  comparacion_de_numeros:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comparación de números
+        run: | 
+          if[${{vars.VARIABLE_A}} -gt ${{vars.VARIABLE_B}}] then
+          echo "El numero ${{vars.VARIABLE_A}} es mayor que ${{vars.VARIABLE_B}}"
+          else
+          echo "El numero ${{vars.VARIABLE_A}} es menor que ${{vars.VARIABLE_B}}"
+          fi
+
     
