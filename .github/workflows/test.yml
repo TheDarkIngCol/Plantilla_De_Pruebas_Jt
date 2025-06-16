@@ -29,4 +29,4 @@ jobs:
           if [ $RESULTADO -gt 10 ]; then
             echo "El resultado es mayor a 10"
           else
-            echo "El resultado es menor a 10""
+            echo "El resultado es menor a 10"
