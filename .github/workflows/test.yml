@@ -1,16 +1,21 @@
-name: Bienvenido a mi primer pipeline
+name: Taller de ejemplo
 
-on: push
+on:
+  push:
+    branches: 
+      - 'test/'
+
 jobs: 
-    saludo:
-      runs-on: ubuntu-latest
-      steps: 
-        - name: Imprimir Saludo
-          run: echo "Hola Jorge, este es mi primer pipeline 🚀"
-    mostrar_archivos: 
-      runs-on: ubuntu-latest
-      steps:
-        - name: Clonar Repositorio
-          uses: actions/checkout@v4
-        - name: Mostrar archivos
-          run: ls -la
+  saludo:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Saludo
+        run: echo "Hola, este es mi primer pipeline 🚀"
+  suma_de_numeros: 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Suma de números
+        run: | 
+          suma=$(( ${{vars.VARIABLE_A}} + ${{vars.VARIABLE_B}} ))
+          echo "La suma de ${{vars.VARIABLE_A}} y ${{vars.VARIABLE_B}} es $suma"
+        
