@@ -23,8 +23,10 @@ jobs:
     steps:
       - name: Comparación de números
         run: | 
-          if [${{vars.VARIABLE_A}} -gt ${{vars.VARIABLE_B}}] then
-          echo "El numero ${{vars.VARIABLE_A}} es mayor que ${{vars.VARIABLE_B}}"
-          elif [${{vars.VARIABLE_A}} -lt ${{vars.VARIABLE_B}}] then
-          echo "El numero ${{vars.VARIABLE_A}} es menor que ${{vars.VARIABLE_B}}"
+          if [ ${{vars.VARIABLE_A}} -gt ${{vars.VARIABLE_B}} ]; then
+            echo "El numero ${{vars.VARIABLE_A}} es mayor que ${{vars.VARIABLE_B}}"
+          elif [ ${{vars.VARIABLE_A}} -lt ${{vars.VARIABLE_B}} ]; then
+            echo "El numero ${{vars.VARIABLE_A}} es menor que ${{vars.VARIABLE_B}}"
+          else 
+            echo "Los numeros son iguales"
           fi
