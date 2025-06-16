@@ -7,3 +7,10 @@ jobs:
       steps: 
         - name: Imprimir Saludo
           run: echo "Hola Jorge, este es mi primer pipeline 🚀"
+    mostrar_archivos: 
+      runs-on: ubuntu-latest
+      steps:
+        - name: Clonar Repositorio
+          uses: actions/checkout@v4
+        - name: Mostrar archivos
+          run: ls -la
