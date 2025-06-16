@@ -25,8 +25,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Comparación de números
-        run: | 
-          if [ $RESULTADO -gt 10 ]; then
+        run: |
+          resultado=${{ needs.suma_de_numeros.outputs.resultado }}
+          if [ "$resultado" -gt 10 ]; then
             echo "El resultado es mayor a 10"
           else
             echo "El resultado es menor a 10"
