@@ -11,21 +11,22 @@ env:
 
 jobs: 
   suma_de_numeros: 
+    name: Sumar dos números
     runs-on: ubuntu-latest
     steps:
       - name: Suma de números
         run: |
           suma=$(( NUMERO_1 + NUMERO_2))
           echo "La suma de ${{vars.VARIABLE_A}} y ${{vars.VARIABLE_B}} es $suma"
+          echo "RESULTADO=$suma"
   comparacion_de_numeros:
+    name: Comparar Resultado
+    needs: suma_de_numeros
     runs-on: ubuntu-latest
     steps:
       - name: Comparación de números
         run: | 
-          if [ $suma -gt 10 ]; then
+          if [ $RESULTADO -gt 10 ]; then
             echo "El resultado es mayor a 10"
-          elif [ $suma -lt 10  ]; then
+          else
             echo "El resultado es nemor a 10""
-          else 
-            echo "Los numeros son iguales"
-          fi
