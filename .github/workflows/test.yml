@@ -13,6 +13,8 @@ jobs:
   suma_de_numeros: 
     name: Sumar dos números
     runs-on: ubuntu-latest
+    outputs:
+      resultado: ${{ steps.suma_step.outputs.resultado }}
     steps:
       - name: Suma de números
         id: suma_step
