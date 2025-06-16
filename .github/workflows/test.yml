@@ -5,18 +5,17 @@ on:
     branches:
       - 'test/*'
 
+env:
+  NUMERO_1: ${{vars.VARIABLE_A}}
+  NUMERO_2: ${{vars.VARIABLE_B}} 
+
 jobs: 
-  saludo:
-    runs-on: ubuntu-latest
-    steps: 
-      - name: Saludo
-        run: echo "Hola, este es mi primer pipeline :)"
   suma_de_numeros: 
     runs-on: ubuntu-latest
     steps:
       - name: Suma de números
         run: |
-          suma=$(( ${{vars.VARIABLE_A}} + ${{vars.VARIABLE_B}} ))
+          suma=$(( NUMERO_1 + NUMERO_2))
           echo "La suma de ${{vars.VARIABLE_A}} y ${{vars.VARIABLE_B}} es $suma"
   comparacion_de_numeros:
     runs-on: ubuntu-latest
