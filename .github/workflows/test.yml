@@ -28,5 +28,3 @@ jobs:
           else
           echo "El numero ${{vars.VARIABLE_A}} es menor que ${{vars.VARIABLE_B}}"
           fi
-
-    
