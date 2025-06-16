@@ -2,8 +2,8 @@ name: Taller de ejemplo
 
 on:
   push:
-    branches: 
-      - 'test/'
+    branches:
+      - 'test/*'
 
 jobs: 
   saludo:
@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Suma de números
-        run: | 
+        run: |
           suma=$(( ${{vars.VARIABLE_A}} + ${{vars.VARIABLE_B}} ))
           echo "La suma de ${{vars.VARIABLE_A}} y ${{vars.VARIABLE_B}} es $suma"
-        
