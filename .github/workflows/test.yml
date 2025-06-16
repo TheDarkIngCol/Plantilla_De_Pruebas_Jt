@@ -1,0 +1,9 @@
+name: Bienvenido a mi primer pipeline
+
+on: push
+jobs: 
+    saludo:
+      runs-on: ubuntu-latest
+      steps: 
+        - name: Imprimir Saludo
+          run: echo "Hola Jorge, este es mi primer pipeline 🚀"
