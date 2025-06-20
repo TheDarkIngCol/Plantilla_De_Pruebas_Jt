@@ -25,8 +25,8 @@ LIM_ADULTO: ${{ vars.LIM_ADULTO }}
 
 jobs: 
   obtener_edad:
-    runs-on: ubuntu-latest
     name: Obtencion de la edad
+    runs-on: ubuntu-latest
     outputs:
       resultado: ${{ steps.edad_input.outputs.resultado }}
     steps:
