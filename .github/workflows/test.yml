@@ -34,27 +34,3 @@ jobs:
         run: |
           edad=$(( edad ))
           echo "resultado=$edad" >> $GITHUB_OUTPUT
-    
-    steps:
-      - name: Suma de números
-        id: suma_step
-        run: |
-          suma=$(( LIM_NINEZ + NUMERO_2 ))
-          echo "La suma de $NUMERO_1 y $NUMERO_2 es $suma"
-          echo "resultado=$suma" >> $GITHUB_OUTPUT
-
-  comparacion_de_numeros:
-    name: Comparar Resultado
-    needs: suma_de_numeros
-    runs-on: ubuntu-latest
-    steps:
-      - name: Comparación de números
-        run: |
-          resultado=${{ needs.suma_de_numeros.outputs.resultado }}
-          if [ "$resultado" -gt 10 ]; then
-            echo "El resultado es mayor a 10"
-          elif [ "$resultado" -eq 10 ]; then
-            echo "El resultado es igual a 10"
-          else
-            echo "El resultado es menor a 10"
-          fi
