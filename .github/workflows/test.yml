@@ -4,19 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       dia:
-        description: "ingrese el dia"
+        description: "Ingrese el dia"
         required: true
         type: string
       mes:
-        description: "ingrese el mes"
+        description: "Ingrese el mes"
         required: true
         type: string
       year:
-        description: "ingrese el año"
+        description: "Ingrese el año"
         required: true
         type: string
-
-
 
 jobs:
   obtener_edad:
@@ -30,7 +28,7 @@ jobs:
     steps:
       - name: Obtener el dia
         run: |
-          echo "El dia es: ${{ inputs.dia }}"
+          echo "El dia es: $inputs.dia"
       - name: Obtener el mes
         run: |
           echo "El mes es: ${{ inputs.mes }}"
