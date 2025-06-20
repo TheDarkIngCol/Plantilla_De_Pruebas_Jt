@@ -17,16 +17,15 @@ on:
         type: string
   
 jobs:
-    obtener_edad:
-        runs-on: ubuntu-latest
-        name: Obtencion de la edad
-        env:
-          LIM_NINEZ: ${{ vars.LIM_NINEZ }}
-          LIM_ADOLESCENCIA: ${{ vars.LIM_ADOLESCENCIA }}
-          LIM_ADULTO_JOVEN: ${{ vars.LIM_ADULTO_JOVEN }}
-          LIM_ADULTO: ${{ vars.LIM_ADULTO }}
-        steps:
-          - name: Obtener la edad de los inputs
-            id: edad_input
-            run: |
-              echo "La edad es: ${{inputs.edad}}"
+  obtener_edad:
+    runs-on: ubuntu-latest
+    env:
+      LIM_NINEZ: ${{ vars.LIM_NINEZ }}
+      LIM_ADOLESCENCIA: ${{ vars.LIM_ADOLESCENCIA }}
+      LIM_ADULTO_JOVEN: ${{ vars.LIM_ADULTO_JOVEN }}
+      LIM_ADULTO: ${{ vars.LIM_ADULTO }}
+    steps:
+      - name: Obtener la edad de los inputs
+        id: edad_input
+        run: |
+          echo "La edad es: ${{inputs.edad}}"
