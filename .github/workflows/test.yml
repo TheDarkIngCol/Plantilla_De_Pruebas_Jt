@@ -2,6 +2,19 @@ name: Taller Edad De Personas
 
 on:
   workflow_dispatch:
+    inputs: 
+      edad:
+        description: "ingrese el dia"
+        required: true
+        type: string
+      mes:
+        description: "ingrese el mes"
+        required: true
+        type: string
+      año:
+        description: "ingrese el año"
+        required: true
+        type: string
         
 
 env:
@@ -14,8 +27,6 @@ jobs:
   obtener_edad:
     name: Obtencion de la edad
     runs-on: ubuntu-latest
-    outputs:
-      resultado: ${{ steps.edad_input.outputs.resultado }}
     steps:
       - name: Obtener la edad de los inputs
         id: edad_input
