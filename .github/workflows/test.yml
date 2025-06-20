@@ -16,24 +16,39 @@ on:
         required: true
         type: string
 
-env:
-  LIM_NINEZ: ${{ vars.LIM_NINEZ }}
-  LIM_ADOLESCENCIA: ${{ vars.LIM_ADOLESCENCIA }}
-  LIM_ADULTO_JOVEN: ${{ vars.LIM_ADULTO_JOVEN }}
-  LIM_ADULTO: ${{ vars.LIM_ADULTO }}
-
 jobs:
   obtener_edad:
     name: Input edad
     runs-on: ubuntu-latest
+    env:
+      LIM_NINEZ: ${{ vars.LIM_NINEZ }}
+      LIM_ADOLESCENCIA: ${{ vars.LIM_ADOLESCENCIA }}
+      LIM_ADULTO_JOVEN: ${{ vars.LIM_ADULTO_JOVEN }}
+      LIM_ADULTO: ${{ vars.LIM_ADULTO }}
     steps:
-      - name: Obtener el dia
+      - name: Calcular edad y clasificar
         run: |
-          dia=${{ github.event.inputs.dia }}
-          echo "El dia es: $dia"
-      - name: Obtener el mes
-        run: |
-          echo "El mes es: ${{ inputs.mes }}"
-      - name: Obtener el año
-        run: |
-          echo "El año es: ${{ inputs.year }}"
+          echo "Fecha ingresada: ${{ inputs.dia }}-${{ inputs.mes }}-${{ inputs.year }}"
+
+          BIRTH_DATE="${{ inputs.year }}-${{ inputs.mes }}-${{ inputs.dia }}"
+          CURRENT_DATE=$(date +%Y-%m-%d)
+
+          # Calcular edad usando date
+          BIRTH_SECONDS=$(date -d "$BIRTH_DATE" +%s)
+          CURRENT_SECONDS=$(date -d "$CURRENT_DATE" +%s)
+          AGE_YEARS=$(( (CURRENT_SECONDS - BIRTH_SECONDS) / 31556926 ))  # segundos en un año promedio
+
+          echo "Edad calculada: $AGE_YEARS años"
+
+          # Clasificación por rango
+          if [ "$AGE_YEARS" -le "$LIM_NINEZ" ]; then
+            echo "Rango: Niñez"
+          elif [ "$AGE_YEARS" -le "$LIM_ADOLESCENCIA" ]; then
+            echo "Rango: Adolescencia"
+          elif [ "$AGE_YEARS" -le "$LIM_ADULTO_JOVEN" ]; then
+            echo "Rango: Adulto Joven"
+          elif [ "$AGE_YEARS" -le "$LIM_ADULTO" ]; then
+            echo "Rango: Adulto"
+          else
+            echo "Rango: Adulto Mayor"
+          fi
