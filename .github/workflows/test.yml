@@ -18,8 +18,8 @@ on:
   
 jobs:
   obtener_edad:
-    name: Obtencion de la edad
     runs-on: ubuntu-latest
+    name: Obtencion de la edad
     env:
       LIM_NINEZ: ${{ vars.LIM_NINEZ }}
       LIM_ADOLESCENCIA: ${{ vars.LIM_ADOLESCENCIA }}
