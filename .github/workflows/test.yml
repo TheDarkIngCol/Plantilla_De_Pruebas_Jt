@@ -4,15 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       dia:
-        description: "ingrese el dia"
+        description: "Ingrese el dia"
         required: true
         type: string
       mes:
-        description: "ingrese el mes"
+        description: "Ingrese el mes"
         required: true
         type: string
       year:
-        description: "ingrese el año"
+        description: "Ingrese el año"
         required: true
         type: string
 
@@ -20,13 +20,19 @@ jobs:
   obtener_edad:
     name: Input edad
     runs-on: ubuntu-latest
+    env:
+      LIM_NINEZ: ${{ vars.LIM_NINEZ }}
+      LIM_ADOLESCENCIA: ${{ vars.LIM_ADOLESCENCIA }}
+      LIM_ADULTO_JOVEN: ${{ vars.LIM_ADULTO_JOVEN }}
+      LIM_ADULTO: ${{ vars.LIM_ADULTO }}
     steps:
       - name: Obtener el dia
         run: |
-          echo "El dia es: ${{inputs.dia}}"
+          dia=${{ github.event.inputs.dia }}
+          echo "El dia es: $dia"
       - name: Obtener el mes
         run: |
-          echo "El mes es: ${{inputs.mes}}"
+          echo "El mes es: ${{ inputs.mes }}"
       - name: Obtener el año
         run: |
-          echo "El año es: ${{inputs.year}}"
+          echo "El año es: ${{ inputs.year }}"
