@@ -4,51 +4,55 @@ on:
   workflow_dispatch:
     inputs:
       dia:
-        description: "Ingrese el dia"
+        description: "Día de nacimiento"
         required: true
         type: string
       mes:
-        description: "Ingrese el mes"
+        description: "Mes de nacimiento"
         required: true
         type: string
       year:
-        description: "Ingrese el año"
+        description: "Año de nacimiento"
         required: true
         type: string
 
 jobs:
-  obtener_edad:
-    name: Input edad
+  calcular:
+    name: Calcular edad
     runs-on: ubuntu-latest
+    outputs:
+      edad: ${{ steps.edad.outputs.resultado }}
+    steps:
+      - name: Obtener edad
+        id: edad
+        run: |
+          edad=$(( $(date +%Y) - ${{ inputs.year }} ))
+          echo "Edad calculada rápidamente: $edad años"
+          echo "resultado=$edad" >> $GITHUB_OUTPUT
+
+
+  clasificar:
+    name: Clasificar etapa
+    runs-on: ubuntu-latest
+    needs: calcular
     env:
       LIM_NINEZ: ${{ vars.LIM_NINEZ }}
       LIM_ADOLESCENCIA: ${{ vars.LIM_ADOLESCENCIA }}
       LIM_ADULTO_JOVEN: ${{ vars.LIM_ADULTO_JOVEN }}
       LIM_ADULTO: ${{ vars.LIM_ADULTO }}
     steps:
-      - name: Calcular edad y clasificar
+      - name: Mostrar etapa de vida
         run: |
-          echo "Fecha ingresada: ${{ inputs.dia }}-${{ inputs.mes }}-${{ inputs.year }}"
-
-          BIRTH_DATE="${{ inputs.year }}-${{ inputs.mes }}-${{ inputs.dia }}"
-          CURRENT_DATE=$(date +%Y-%m-%d)
-
-          # Calcular edad usando date
-          BIRTH_SECONDS=$(date -d "$BIRTH_DATE" +%s)
-          CURRENT_SECONDS=$(date -d "$CURRENT_DATE" +%s)
-          AGE_YEARS=$(( (CURRENT_SECONDS - BIRTH_SECONDS) / 31556926 ))  # segundos en un año promedio
-
-          echo "Edad calculada: $AGE_YEARS años"
-
-          # Clasificación por rango
-          if [ "$AGE_YEARS" -le "$LIM_NINEZ" ]; then
-            echo "Rango: Niñez"
-          elif [ "$AGE_YEARS" -le "$LIM_ADOLESCENCIA" ]; then
-            echo "Rango: Adolescencia"
-          elif [ "$AGE_YEARS" -le "$LIM_ADULTO_JOVEN" ]; then
-            echo "Rango: Adulto Joven"
-          elif [ "$AGE_YEARS" -le "$LIM_ADULTO" ]; then
-            echo "Rango: Adulto"
+          edad=${{ needs.calcular.outputs.edad }}
+          echo "Edad: $edad años"
+          if [ "$edad" -lt "$LIM_NINEZ" ]; then
+            echo "Etapa: Niñez"
+          elif [ "$edad" -le "$LIM_ADOLESCENCIA" ]; then
+            echo "Etapa: Adolescencia"
+          elif [ "$edad" -le "$LIM_ADULTO_JOVEN" ]; then
+            echo "Etapa: Adulto Joven"
+          elif [ "$edad" -le "$LIM_ADULTO" ]; then
+            echo "Etapa: Adulto"
           else
-            echo "Rango: Adulto Mayor"
+            echo "Etapa: Adulto Mayor"
           fi
