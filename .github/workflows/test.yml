@@ -2,6 +2,15 @@ name: Taller Edad De Personas
 
 on:
   workflow_dispatch:
+
+env:
+LIM_NINEZ: ${{ vars.LIM_NINEZ }}
+LIM_ADOLESCENCIA: ${{ vars.LIM_ADOLESCENCIA }}
+LIM_ADULTO_JOVEN: ${{ vars.LIM_ADULTO_JOVEN }}
+LIM_ADULTO: ${{ vars.LIM_ADULTO }}
+
+jobs: 
+  obtener_edad: 
     inputs: 
       edad:
         description: "ingrese el dia"
@@ -15,15 +24,7 @@ on:
         description: "ingrese el año"
         required: true
         type: int
-
-env:
-LIM_NINEZ: ${{ vars.LIM_NINEZ }}
-LIM_ADOLESCENCIA: ${{ vars.LIM_ADOLESCENCIA }}
-LIM_ADULTO_JOVEN: ${{ vars.LIM_ADULTO_JOVEN }}
-LIM_ADULTO: ${{ vars.LIM_ADULTO }}
-
-jobs: 
-  obtener_edad: 
+        
     name: Obtencion de la edad
     runs-on: ubuntu-latest
     outputs:
