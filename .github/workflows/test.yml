@@ -1,9 +1,9 @@
-name: Taller Edad De Personas
+name: Taller Edad
 
 on:
   workflow_dispatch:
     inputs:
-      edad:
+      dia:
         description: "ingrese el dia"
         required: true
         type: string
@@ -11,20 +11,22 @@ on:
         description: "ingrese el mes"
         required: true
         type: string
-      año:
+      year:
         description: "ingrese el año"
         required: true
         type: string
-  
+
 jobs:
   obtener_edad:
+    name: Input edad
     runs-on: ubuntu-latest
-    env:
-      LIM_NINEZ: ${{ vars.LIM_NINEZ }}
-      LIM_ADOLESCENCIA: ${{ vars.LIM_ADOLESCENCIA }}
-      LIM_ADULTO_JOVEN: ${{ vars.LIM_ADULTO_JOVEN }}
-      LIM_ADULTO: ${{ vars.LIM_ADULTO }}
     steps:
-      - name: Obtener la edad de los inputs
+      - name: Obtener el dia
         run: |
-          echo "La edad es: ${{inputs.edad}}"
+          echo "El dia es: ${{inputs.dia}}"
+      - name: Obtener el mes
+        run: |
+          echo "El mes es: ${{inputs.mes}}"
+      - name: Obtener el año
+        run: |
+          echo "El año es: ${{inputs.year}}"
