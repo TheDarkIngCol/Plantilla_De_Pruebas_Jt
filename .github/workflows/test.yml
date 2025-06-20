@@ -1,25 +1,45 @@
-name: Taller de ejemplo
+name: Taller Edad De Personas
 
 on:
-  push:
-    branches:
-      - 'test/*'
+  workflow_dispatch:
+    inputs: 
+      edad:
+        description: "ingrese el dia"
+        required: true
+        type: int
+      mes:
+        description: "ingrese el mes"
+        required: true
+        type: int
+      año:
+        description: "ingrese el año"
+        required: true
+        type: int
 
 env:
-  NUMERO_1: ${{ vars.VARIABLE_A }}
-  NUMERO_2: ${{ vars.VARIABLE_B }}
+LIM_NINEZ: ${{ vars.LIM_NINEZ }}
+LIM_ADOLESCENCIA: ${{ vars.LIM_ADOLESCENCIA }}
+LIM_ADULTO_JOVEN: ${{ vars.LIM_ADULTO_JOVEN }}
+LIM_ADULTO: ${{ vars.LIM_ADULTO }}
 
 jobs: 
-  suma_de_numeros: 
-    name: Sumar dos números
+  obtener_edad: 
+    name: Obtencion de la edad
     runs-on: ubuntu-latest
     outputs:
-      resultado: ${{ steps.suma_step.outputs.resultado }}
+      resultado: ${{ steps.edad_input.outputs.resultado }}
+    steps:
+      - name: Obtener la edad de los inputs
+        id: edad_input
+        run: |
+          edad=$(( edad ))
+          echo "resultado=$edad" >> $GITHUB_OUTPUT
+    
     steps:
       - name: Suma de números
         id: suma_step
         run: |
-          suma=$(( NUMERO_1 + NUMERO_2 ))
+          suma=$(( LIM_NINEZ + NUMERO_2 ))
           echo "La suma de $NUMERO_1 y $NUMERO_2 es $suma"
           echo "resultado=$suma" >> $GITHUB_OUTPUT
 
