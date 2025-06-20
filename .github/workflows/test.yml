@@ -1,37 +1,40 @@
-name: Taller Edad
+name: Taller de ejemplo
 
 on:
-  workflow_dispatch:
-    inputs:
-      dia:
-        description: "ingrese el dia"
-        required: true
-        type: string
-      mes:
-        description: "ingrese el mes"
-        required: true
-        type: string
-      year:
-        description: "ingrese el año"
-        required: true
-        type: string
+  push:
+    branches:
+      - 'test/*'
 
-jobs:
-  obtener_edad:
-    name: Input edad
+env:
+  NUMERO_1: ${{ vars.VARIABLE_A }}
+  NUMERO_2: ${{ vars.VARIABLE_B }}
+
+jobs: 
+  suma_de_numeros: 
+    name: Sumar dos números
     runs-on: ubuntu-latest
-    env:
-      LIM_NINEZ: ${{ vars.LIM_NINEZ }}
-      LIM_ADOLESCENCIA: ${{ vars.LIM_ADOLESCENCIA }}
-      LIM_ADULTO_JOVEN: ${{ vars.LIM_ADULTO_JOVEN }}
-      LIM_ADULTO: ${{ vars.LIM_ADULTO }}
+    outputs:
+      resultado: ${{ steps.suma_step.outputs.resultado }}
     steps:
-      - name: Obtener el dia
+      - name: Suma de números
+        id: suma_step
         run: |
-          echo "El dia es: ${{inputs.dia}}"
-      - name: Obtener el mes
+          suma=$(( NUMERO_1 + NUMERO_2 ))
+          echo "La suma de $NUMERO_1 y $NUMERO_2 es $suma"
+          echo "resultado=$suma" >> $GITHUB_OUTPUT
+
+  comparacion_de_numeros:
+    name: Comparar Resultado
+    needs: suma_de_numeros
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comparación de números
         run: |
-          echo "El mes es: ${{inputs.mes}}"
-      - name: Obtener el año
-        run: |
-          echo "El año es: ${{inputs.year}}"
+          resultado=${{ needs.suma_de_numeros.outputs.resultado }}
+          if [ "$resultado" -gt 10 ]; then
+            echo "El resultado es mayor a 10"
+          elif [ "$resultado" -eq 10 ]; then
+            echo "El resultado es igual a 10"
+          else
+            echo "El resultado es menor a 10"
+          fi
