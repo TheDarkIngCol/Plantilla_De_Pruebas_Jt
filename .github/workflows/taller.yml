@@ -1,9 +1,0 @@
-name: Taller Edad
-
-on:
-  push: 
-    branches: 
-      - main
-
-env:
-  LIM_NINEZ: {{}}
