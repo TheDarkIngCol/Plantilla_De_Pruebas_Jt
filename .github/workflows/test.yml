@@ -10,7 +10,8 @@ LIM_ADULTO_JOVEN: ${{ vars.LIM_ADULTO_JOVEN }}
 LIM_ADULTO: ${{ vars.LIM_ADULTO }}
 
 jobs: 
-  obtener_edad: 
+  obtener_edad:
+    runs-on: ubuntu-latest
     inputs: 
       edad:
         description: "ingrese el dia"
@@ -26,7 +27,6 @@ jobs:
         type: int
         
     name: Obtencion de la edad
-    runs-on: ubuntu-latest
     outputs:
       resultado: ${{ steps.edad_input.outputs.resultado }}
     steps:
