@@ -28,7 +28,7 @@ jobs:
     steps:
       - name: Obtener el dia
         run: |
-          echo "El dia es: $inputs.dia"
+          echo "El dia es: $[[ inputs.dia ]]"
       - name: Obtener el mes
         run: |
           echo "El mes es: ${{ inputs.mes }}"
