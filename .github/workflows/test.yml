@@ -26,9 +26,12 @@ jobs:
       - name: Obtener edad
         id: edad
         run: |
-          edad=$(( $(date +%Y) - ${{ inputs.year }} ))
-          echo "Edad calculada rápidamente: $edad años"
+          year="${{ inputs.year }}"
+          current_year=$(date +%Y)
+          edad=$((current_year - year))
+          echo "Edad: $edad"
           echo "resultado=$edad" >> $GITHUB_OUTPUT
+
 
 
   clasificar:
