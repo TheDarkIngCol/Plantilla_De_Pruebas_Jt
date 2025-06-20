@@ -30,4 +30,3 @@ jobs:
       - name: Obtener el año
         run: |
           echo "El año es: ${{inputs.year}}"
-          
