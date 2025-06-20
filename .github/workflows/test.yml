@@ -26,6 +26,5 @@ jobs:
       LIM_ADULTO: ${{ vars.LIM_ADULTO }}
     steps:
       - name: Obtener la edad de los inputs
-        id: edad_input
         run: |
           echo "La edad es: ${{inputs.edad}}"
