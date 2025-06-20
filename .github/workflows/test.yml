@@ -1,21 +1,30 @@
-name: Taller de ejemplo
+name: Taller Edad De Personas
 
 on:
-  push:
-    branches: 
-      - 'test/'
-
-jobs: 
-  saludo:
+  workflow_dispatch:
+    inputs:
+      edad:
+        description: "ingrese el dia"
+        required: true
+        type: string
+      mes:
+        description: "ingrese el mes"
+        required: true
+        type: string
+      año:
+        description: "ingrese el año"
+        required: true
+        type: string
+  
+jobs:
+  obtener_edad:
     runs-on: ubuntu-latest
-    steps: 
-      - name: Saludo
-        run: echo "Hola, este es mi primer pipeline 🚀"
-  suma_de_numeros: 
-    runs-on: ubuntu-latest
+    env:
+      LIM_NINEZ: ${{ vars.LIM_NINEZ }}
+      LIM_ADOLESCENCIA: ${{ vars.LIM_ADOLESCENCIA }}
+      LIM_ADULTO_JOVEN: ${{ vars.LIM_ADULTO_JOVEN }}
+      LIM_ADULTO: ${{ vars.LIM_ADULTO }}
     steps:
-      - name: Suma de números
-        run: | 
-          suma=$(( ${{vars.VARIABLE_A}} + ${{vars.VARIABLE_B}} ))
-          echo "La suma de ${{vars.VARIABLE_A}} y ${{vars.VARIABLE_B}} es $suma"
-        
+      - name: Obtener la edad de los inputs
+        run: |
+          echo "La edad es: ${{inputs.edad}}"
