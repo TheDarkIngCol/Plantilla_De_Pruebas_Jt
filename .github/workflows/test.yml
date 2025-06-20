@@ -28,7 +28,8 @@ jobs:
     steps:
       - name: Obtener el dia
         run: |
-          echo "El dia es: ${{ github.event.inputs.dia }}"
+          dia=${{ github.event.inputs.dia }}
+          echo "El dia es: $dia"
       - name: Obtener el mes
         run: |
           echo "El mes es: ${{ inputs.mes }}"
