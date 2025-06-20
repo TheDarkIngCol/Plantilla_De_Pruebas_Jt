@@ -16,15 +16,16 @@ on:
         required: true
         type: string
 
+env:
+  LIM_NINEZ: ${{ vars.LIM_NINEZ }}
+  LIM_ADOLESCENCIA: ${{ vars.LIM_ADOLESCENCIA }}
+  LIM_ADULTO_JOVEN: ${{ vars.LIM_ADULTO_JOVEN }}
+  LIM_ADULTO: ${{ vars.LIM_ADULTO }}
+
 jobs:
   obtener_edad:
     name: Input edad
     runs-on: ubuntu-latest
-    env:
-      LIM_NINEZ: ${{ vars.LIM_NINEZ }}
-      LIM_ADOLESCENCIA: ${{ vars.LIM_ADOLESCENCIA }}
-      LIM_ADULTO_JOVEN: ${{ vars.LIM_ADULTO_JOVEN }}
-      LIM_ADULTO: ${{ vars.LIM_ADULTO }}
     steps:
       - name: Obtener el dia
         run: |
