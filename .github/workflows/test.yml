@@ -16,8 +16,14 @@ on:
         required: true
         type: string
 
+env:
+  LIM_NINEZ: ${{ vars.LIM_NINEZ }}
+  LIM_ADOLESCENCIA: ${{ vars.LIM_ADOLESCENCIA }}
+  LIM_ADULTO_JOVEN: ${{ vars.LIM_ADULTO_JOVEN }}
+  LIM_ADULTO: ${{ vars.LIM_ADULTO }}
+
 jobs:
-  calcular:
+  calcular_edad:
     name: Calcular edad
     runs-on: ubuntu-latest
     outputs:
@@ -32,15 +38,10 @@ jobs:
           echo "Edad: $edad"
           echo "resultado=$edad" >> $GITHUB_OUTPUT
 
-  clasificar:
+  clasificar_edad:
     name: Clasificar etapa
     runs-on: ubuntu-latest
-    needs: calcular
-    env:
-      LIM_NINEZ: ${{ vars.LIM_NINEZ }}
-      LIM_ADOLESCENCIA: ${{ vars.LIM_ADOLESCENCIA }}
-      LIM_ADULTO_JOVEN: ${{ vars.LIM_ADULTO_JOVEN }}
-      LIM_ADULTO: ${{ vars.LIM_ADULTO }}
+    needs: calcular_edad
     steps:
       - name: Mostrar etapa de vida
         run: |
