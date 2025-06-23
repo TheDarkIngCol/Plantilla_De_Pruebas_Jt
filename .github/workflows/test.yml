@@ -32,8 +32,6 @@ jobs:
           echo "Edad: $edad"
           echo "resultado=$edad" >> $GITHUB_OUTPUT
 
-
-
   clasificar:
     name: Clasificar etapa
     runs-on: ubuntu-latest
