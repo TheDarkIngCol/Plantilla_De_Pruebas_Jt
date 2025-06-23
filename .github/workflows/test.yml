@@ -35,7 +35,7 @@ jobs:
           year="${{ inputs.year }}"
           current_year=$(date +%Y)
           edad=$((current_year - year))
-          echo "Edad: $edad"
+          echo "La edad es: $edad"
           echo "resultado=$edad" >> $GITHUB_OUTPUT
 
   clasificar_edad:
