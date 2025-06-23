@@ -45,7 +45,7 @@ jobs:
     steps:
       - name: Mostrar etapa de vida
         run: |
-          edad=${{ needs.calcular.outputs.edad }}
+          edad=${{ needs.calcular_edad.outputs.edad }}
           echo "Edad: $edad años"
           if [ "$edad" -lt "$LIM_NINEZ" ]; then
             echo "Etapa: Niñez"
