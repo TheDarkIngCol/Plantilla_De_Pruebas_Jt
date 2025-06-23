@@ -48,13 +48,13 @@ jobs:
           edad=${{ needs.calcular_edad.outputs.edad }}
           echo "Edad: $edad años"
           if [ "$edad" -lt "$LIM_NINEZ" ]; then
-            echo "Etapa: Niñez"
+            echo "La etapa es: Niñez"
           elif [ "$edad" -le "$LIM_ADOLESCENCIA" ]; then
-            echo "Etapa: Adolescencia"
+            echo "La etapa es: Adolescencia"
           elif [ "$edad" -le "$LIM_ADULTO_JOVEN" ]; then
-            echo "Etapa: Adulto Joven"
+            echo "La etapa es: Adulto Joven"
           elif [ "$edad" -le "$LIM_ADULTO" ]; then
-            echo "Etapa: Adulto"
+            echo "La etapa es: Adulto"
           else
-            echo "Etapa: Adulto Mayor"
+            echo "La etapa es: Adulto Mayor"
           fi
