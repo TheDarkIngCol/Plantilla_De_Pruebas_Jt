@@ -10,6 +10,9 @@ on:
         description: "Día en formato DD"
         required: true
 
+env:
+  LANG: ${{ vars.LANG }}
+
 jobs:
   fetch-api:
     name: Obtener datos del API
@@ -19,16 +22,21 @@ jobs:
     steps:
       - name: Configurar variables
         run: |
-          echo "LANG=${{ vars.LANG }}" >> $GITHUB_ENV
           echo "MONTH=${{ github.event.inputs.month }}" >> $GITHUB_ENV
           echo "DAY=${{ github.event.inputs.day }}" >> $GITHUB_ENV
+
+      - name: Crear hash para cache
+        id: hash
+        run: |
+          hash=$(echo -n "${{ env.LANG }}-${{ env.MONTH }}-${{ env.DAY }}" | sha256sum | cut -d ' ' -f1)
+          echo "hash=$hash" >> $GITHUB_OUTPUT
 
       - name: Restaurar cache de API
         id: cache-api
         uses: actions/cache@v4
         with:
           path: response.json
-          key: ${{ env.LANG }}-${{ env.MONTH }}-${{ env.DAY }}
+          key: ${{ steps.hash.outputs.hash }}
 
       - name: Llamar API Wikimedia si no hay cache
         if: steps.cache-api.outputs.cache-hit != 'true'
@@ -55,14 +63,15 @@ jobs:
           echo "📌 Título: ${{ matrix.event.title }}"
           echo "🔗 URL: ${{ matrix.event.url }}"
 
+      - name: Instalar wkhtmltopdf
+        run: sudo apt-get update && sudo apt-get install -y wkhtmltopdf
+
       - name: Descargar HTML
         run: curl -s -L "${{ matrix.event.url }}" -o page.html
 
       - name: Convertir HTML a PDF
-        uses: devcontainers-contrib/wkhtmltopdf-action@v1
-        with:
-          input: page.html
-          output: "${{ github.event.inputs.month }}-${{ github.event.inputs.day }}-${{ matrix.event.title }}.pdf"
+        run: |
+          wkhtmltopdf page.html "${{ github.event.inputs.month }}-${{ github.event.inputs.day }}-${{ matrix.event.title }}.pdf"
 
       - name: Subir artefacto
         uses: actions/upload-artifact@v4
