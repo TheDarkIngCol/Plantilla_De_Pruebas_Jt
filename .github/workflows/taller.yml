@@ -15,7 +15,7 @@ env:
 
 jobs:
   fetch-api:
-    name: Obtener datos del API
+    name: Obtener eventos del API
     runs-on: ubuntu-latest
     outputs:
       events: ${{ steps.extract.outputs.events }}
@@ -50,7 +50,7 @@ jobs:
           echo "events=$events" >> $GITHUB_OUTPUT
 
   process-events:
-    name: Procesar eventos
+    name: Procesar y convertir a PDF
     needs: fetch-api
     runs-on: ubuntu-latest
     strategy:
@@ -63,26 +63,22 @@ jobs:
           echo "📌 Título: ${{ matrix.event.title }}"
           echo "🔗 URL: ${{ matrix.event.url }}"
 
-      - name: Descargar HTML del evento
-        run: curl -s -L "${{ matrix.event.url }}" -o page.html
+      - name: Preparar nombre seguro del PDF
+        id: pdf-name
+        run: |
+          safe_title=$(echo "${{ matrix.event.title }}" | tr -cd '[:alnum:]._-')
+          filename="${{ github.event.inputs.month }}-${{ github.event.inputs.day }}-${safe_title}.pdf"
+          echo "FILENAME=$filename" >> $GITHUB_ENV
 
-      - name: Guardar HTML como artefacto
-        uses: actions/upload-artifact@v4
+      - name: Convertir HTML a PDF desde URL
+        uses: devcontainers-contrib/wkhtmltopdf-action@v1
         with:
-          name: HTML-${{ matrix.event.title }}
-          path: page.html
-          retention-days: 1
-
-      - name: Convertir HTML a PDF
-        uses: tsunematsu21/html2pdf-action@v1
-        with:
-          input_path: page.html
-          output_path: "${{ github.event.inputs.month }}-${{ github.event.inputs.day }}-${{ matrix.event.title }}.pdf"
-        
+          url: ${{ matrix.event.url }}
+          outputFile: ${{ env.FILENAME }}
 
       - name: Subir artefacto PDF
         uses: actions/upload-artifact@v4
         with:
-          name: PDF-${{ matrix.event.title }}
-          path: "${{ github.event.inputs.month }}-${{ github.event.inputs.day }}-${{ matrix.event.title }}.pdf"
+          name: ${{ env.FILENAME }}
+          path: ${{ env.FILENAME }}
           retention-days: 1
