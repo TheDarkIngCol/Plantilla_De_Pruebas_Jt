@@ -67,14 +67,16 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y wkhtmltopdf
 
       - name: Convertir página web a PDF
+        id: convert
         run: |
           safe_title=$(echo "${{ matrix.event.title }}" | tr -cd '[:alnum:]._-')
           filename="${{ github.event.inputs.month }}-${{ github.event.inputs.day }}-${safe_title}.pdf"
+          echo "FILENAME=$filename" >> $GITHUB_ENV
           wkhtmltopdf --enable-local-file-access "${{ matrix.event.url }}" "$filename" || echo "⚠️ Error al convertir PDF"
 
       - name: Subir artefacto PDF
         uses: actions/upload-artifact@v4
         with:
           name: PDF-${{ matrix.event.title }}
-          path: "${{ github.event.inputs.month }}-${{ github.event.inputs.day }}-${safe_title}.pdf"
+          path: ${{ env.FILENAME }}
           retention-days: 1
