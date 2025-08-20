@@ -11,7 +11,7 @@ on:
         required: true
 
 env:
-  LANG: ${{ vars.LANG }}   # Variable de entorno del repositorio
+  LANG: ${{ vars.LANG }}
 
 jobs:
   fetch-api:
@@ -66,15 +66,25 @@ jobs:
       - name: Descargar HTML del evento
         run: curl -s -L "${{ matrix.event.url }}" -o page.html
 
+      - name: Guardar HTML como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: HTML-${{ matrix.event.title }}
+          path: page.html
+          retention-days: 1
+
       - name: Instalar wkhtmltopdf
         run: sudo apt-get update && sudo apt-get install -y wkhtmltopdf
 
       - name: Convertir HTML a PDF
-        run: wkhtmltopdf page.html "${{ github.event.inputs.month }}-${{ github.event.inputs.day }}-${{ matrix.event.title }}.pdf"
+        run: |
+          safe_title=$(echo "${{ matrix.event.title }}" | tr -cd '[:alnum:]._-')
+          filename="${{ github.event.inputs.month }}-${{ github.event.inputs.day }}-${safe_title}.pdf"
+          wkhtmltopdf --enable-local-file-access page.html "$filename" || echo "⚠️ Error al convertir PDF"
 
-      - name: Subir artefacto
+      - name: Subir artefacto PDF
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.event.inputs.month }}-${{ github.event.inputs.day }}-${{ matrix.event.title }}
+          name: PDF-${{ matrix.event.title }}
           path: "${{ github.event.inputs.month }}-${{ github.event.inputs.day }}-${{ matrix.event.title }}.pdf"
           retention-days: 1
