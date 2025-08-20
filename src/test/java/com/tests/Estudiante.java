@@ -2,6 +2,7 @@ package com.tests;
 
 import java.util.Scanner;
 
+
 public class Estudiante {
 
   String nombre;
