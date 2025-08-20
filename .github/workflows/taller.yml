@@ -55,11 +55,16 @@ jobs:
           echo "📌 Título: ${{ matrix.event.title }}"
           echo "🔗 URL: ${{ matrix.event.url }}"
 
+      - name: Descargar HTML
+        run: curl -s -L "${{ matrix.event.url }}" -o page.html
+      
       - name: Convertir HTML a PDF
         uses: fifsky/html-to-pdf-action@v0.1.0
         with:
-          htmlUrl: ${{ matrix.event.url }}
+          htmlFile: page.html
           outputFile: "${{ github.event.inputs.month }}-${{ github.event.inputs.day }}-${{ matrix.event.title }}.pdf"
+      
+        
 
       - name: Subir artefacto
         uses: actions/upload-artifact@v4
