@@ -1,0 +1,69 @@
+name: Que ocurrió un día como hoy
+
+on:
+  workflow_dispatch:
+    inputs:
+      month:
+        description: "Mes en formato MM"
+        required: true
+      day:
+        description: "Día en formato DD"
+        required: true
+
+jobs:
+  fetch-api:
+    name: Obtener datos del API
+    runs-on: ubuntu-latest
+    outputs:
+      events: ${{ steps.extract.outputs.events }}
+    steps:
+      - name: Configurar variables
+        run: |
+          echo "LANG=${{ vars.LANG }}" >> $GITHUB_ENV
+          echo "MONTH=${{ github.event.inputs.month }}" >> $GITHUB_ENV
+          echo "DAY=${{ github.event.inputs.day }}" >> $GITHUB_ENV
+
+      - name: Restaurar cache de API
+        id: cache-api
+        uses: actions/cache@v4
+        with:
+          path: response.json
+          key: ${{ env.LANG }}-${{ env.MONTH }}-${{ env.DAY }}
+
+      - name: Llamar API Wikimedia si no hay cache
+        if: steps.cache-api.outputs.cache-hit != 'true'
+        run: |
+          curl -s "https://api.wikimedia.org/feed/v1/wikipedia/${{ env.LANG }}/onthisday/selected/${{ env.MONTH }}/${{ env.DAY }}" -o response.json
+
+      - name: Extraer eventos
+        id: extract
+        run: |
+          events=$(jq -c '[.selected[] | {title: .pages[0].title, url: .pages[0].content_urls.desktop.page}]' response.json)
+          echo "events=$events" >> $GITHUB_OUTPUT
+
+  process-events:
+    name: Procesar eventos
+    needs: fetch-api
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false  # resiliencia
+      matrix:
+        event: ${{ fromJson(needs.fetch-api.outputs.events) }}
+    steps:
+      - name: Mostrar evento
+        run: |
+          echo "📌 Título: ${{ matrix.event.title }}"
+          echo "🔗 URL: ${{ matrix.event.url }}"
+
+      - name: Convertir HTML a PDF
+        uses: fifsky/html-to-pdf-action@v0.1.0
+        with:
+          htmlUrl: ${{ matrix.event.url }}
+          outputFile: "${{ github.event.inputs.month }}-${{ github.event.inputs.day }}-${{ matrix.event.title }}.pdf"
+
+      - name: Subir artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.inputs.month }}-${{ github.event.inputs.day }}-${{ matrix.event.title }}
+          path: "${{ github.event.inputs.month }}-${{ github.event.inputs.day }}-${{ matrix.event.title }}.pdf"
+          retention-days: 1
