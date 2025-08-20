@@ -15,7 +15,7 @@ env:
 
 jobs:
   fetch-api:
-    name: Obtener eventos del API
+    name: Obtener datos del API
     runs-on: ubuntu-latest
     outputs:
       events: ${{ steps.extract.outputs.events }}
@@ -50,7 +50,7 @@ jobs:
           echo "events=$events" >> $GITHUB_OUTPUT
 
   process-events:
-    name: Procesar y convertir a PDF
+    name: Procesar eventos
     needs: fetch-api
     runs-on: ubuntu-latest
     strategy:
@@ -63,22 +63,28 @@ jobs:
           echo "📌 Título: ${{ matrix.event.title }}"
           echo "🔗 URL: ${{ matrix.event.url }}"
 
-      - name: Preparar nombre seguro del PDF
-        id: pdf-name
+      - name: Descargar HTML del evento
+        run: curl -s -L "${{ matrix.event.url }}" -o page.html
+
+      - name: Guardar HTML como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: HTML-${{ matrix.event.title }}
+          path: page.html
+          retention-days: 1
+
+      - name: Instalar wkhtmltopdf
+        run: sudo apt-get update && sudo apt-get install -y wkhtmltopdf
+
+      - name: Convertir HTML a PDF
         run: |
           safe_title=$(echo "${{ matrix.event.title }}" | tr -cd '[:alnum:]._-')
           filename="${{ github.event.inputs.month }}-${{ github.event.inputs.day }}-${safe_title}.pdf"
-          echo "FILENAME=$filename" >> $GITHUB_ENV
-
-      - name: Convertir HTML a PDF desde URL
-        uses: devcontainers-contrib/wkhtmltopdf-action@v1
-        with:
-          url: ${{ matrix.event.url }}
-          outputFile: ${{ env.FILENAME }}
+          wkhtmltopdf --enable-local-file-access page.html "$filename" || echo "⚠️ Error al convertir PDF"
 
       - name: Subir artefacto PDF
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.FILENAME }}
-          path: ${{ env.FILENAME }}
+          name: PDF-${{ matrix.event.title }}
+          path: "${{ github.event.inputs.month }}-${{ github.event.inputs.day }}-${{ matrix.event.title }}.pdf"
           retention-days: 1
