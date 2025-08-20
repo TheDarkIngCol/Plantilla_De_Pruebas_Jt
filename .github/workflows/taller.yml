@@ -11,7 +11,7 @@ on:
         required: true
 
 env:
-  LANG: ${{ vars.LANG }}
+  LANG: ${{ vars.LANG }}   # Variable de entorno del repositorio
 
 jobs:
   fetch-api:
@@ -63,11 +63,14 @@ jobs:
           echo "📌 Título: ${{ matrix.event.title }}"
           echo "🔗 URL: ${{ matrix.event.url }}"
 
-      - name: Convertir HTML a PDF desde URL
-        uses: fifsky/html-to-pdf-action@v0.1.0
-        with:
-          htmlUrl: ${{ matrix.event.url }}
-          outputFile: "${{ github.event.inputs.month }}-${{ github.event.inputs.day }}-${{ matrix.event.title }}.pdf"
+      - name: Descargar HTML del evento
+        run: curl -s -L "${{ matrix.event.url }}" -o page.html
+
+      - name: Instalar wkhtmltopdf
+        run: sudo apt-get update && sudo apt-get install -y wkhtmltopdf
+
+      - name: Convertir HTML a PDF
+        run: wkhtmltopdf page.html "${{ github.event.inputs.month }}-${{ github.event.inputs.day }}-${{ matrix.event.title }}.pdf"
 
       - name: Subir artefacto
         uses: actions/upload-artifact@v4
