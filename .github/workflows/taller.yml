@@ -15,21 +15,33 @@ env:
 
 jobs:
   fetch-api:
+    name: Obtener datos del API
     runs-on: ubuntu-latest
     outputs:
       events: ${{ steps.extract.outputs.events }}
     steps:
+      - name: Configurar variables
+        run: |
+          echo "MONTH=${{ github.event.inputs.month }}" >> $GITHUB_ENV
+          echo "DAY=${{ github.event.inputs.day }}" >> $GITHUB_ENV
+
+      - name: Crear hash para cache
+        id: hash
+        run: |
+          hash=$(echo -n "${{ env.LANG }}-${{ env.MONTH }}-${{ env.DAY }}" | sha256sum | cut -d ' ' -f1)
+          echo "hash=$hash" >> $GITHUB_OUTPUT
+
       - name: Restaurar cache de API
         id: cache-api
         uses: actions/cache@v4
         with:
           path: response.json
-          key: onthisday-${{ env.LANG }}-${{ github.event.inputs.month }}-${{ github.event.inputs.day }}
+          key: ${{ steps.hash.outputs.hash }}
 
       - name: Llamar API Wikimedia si no hay cache
         if: steps.cache-api.outputs.cache-hit != 'true'
         run: |
-          curl -s "https://api.wikimedia.org/feed/v1/wikipedia/${{ env.LANG }}/onthisday/selected/${{ github.event.inputs.month }}/${{ github.event.inputs.day }}" -o response.json
+          curl -s "https://api.wikimedia.org/feed/v1/wikipedia/${{ env.LANG }}/onthisday/selected/${{ env.MONTH }}/${{ env.DAY }}" -o response.json
 
       - name: Extraer eventos
         id: extract
@@ -38,6 +50,7 @@ jobs:
           echo "events=$events" >> $GITHUB_OUTPUT
 
   process-events:
+    name: Procesar eventos
     needs: fetch-api
     runs-on: ubuntu-latest
     strategy:
@@ -51,9 +64,7 @@ jobs:
           echo "URL: ${{ matrix.event.url }}"
 
       - name: Instalar wkhtmltopdf
-        uses: daumann/apt-install-action@v1
-        with:
-          packages: wkhtmltopdf
+        run: sudo apt-get update && sudo apt-get install -y wkhtmltopdf
 
       - name: Convertir página web a PDF
         id: convert
@@ -66,6 +77,6 @@ jobs:
       - name: Subir artefacto PDF
         uses: actions/upload-artifact@v4
         with:
-          name: PDF-${{ env.FILENAME }}
+          name: PDF-${{ matrix.event.title }}
           path: ${{ env.FILENAME }}
           retention-days: 1
