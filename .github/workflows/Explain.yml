@@ -1,0 +1,93 @@
+name: Que ocurrió un día como hoy                      # Nombre del workflow tal como aparece en la pestaña "Actions".
+
+on:                                                    # Disparadores (triggers) del workflow.
+  workflow_dispatch:                                   # Permite lanzarlo manualmente desde la UI de GitHub.
+    inputs:                                            # Parámetros que el usuario debe ingresar al dispararlo.
+      month:                                           # Primer input: el mes.
+        description: "Mes en formato MM"               # Descripción visible en la UI (por ej. "08").
+        required: true                                 # Es obligatorio.
+      day:                                             # Segundo input: el día.
+        description: "Día en formato DD"               # Descripción visible en la UI (por ej. "21").
+        required: true                                 # Es obligatorio.
+
+env:                                                   # Variables de entorno a nivel de workflow (heredadas por todos los jobs).
+  LANG: ${{ vars.LANG }}                               # Toma el valor de un Repository/Org variable llamada LANG (p.ej. "es" o "en").
+
+jobs:                                                  # Sección de trabajos (jobs) que se ejecutan en runners.
+  fetch-api:                                           # Primer job: obtiene y prepara los datos.
+    name: Obtener datos del API                        # Nombre amigable del job.
+    runs-on: ubuntu-latest                             # Tipo de runner hospedado por GitHub (Ubuntu).
+    outputs:                                           # Salidas (outputs) que este job expone a otros jobs.
+      events: ${{ steps.extract.outputs.events }}      # Expone la salida "events" que produce el paso con id "extract".
+    steps:                                             # Pasos (steps) a ejecutar dentro del job.
+      - name: Configurar variables                     # Paso 1: convertir inputs del trigger en variables de entorno del job.
+        run: |                                         # "run" ejecuta un script en bash (shell por defecto).
+          echo "MONTH=${{ github.event.inputs.month }}" >> $GITHUB_ENV   # Persiste MONTH para los siguientes steps del mismo job.
+          echo "DAY=${{ github.event.inputs.day }}" >> $GITHUB_ENV       # Persiste DAY igual (usando el archivo especial GITHUB_ENV).
+
+      - name: Crear hash para cache                    # Paso 2: construye una clave única para la caché del API.
+        id: hash                                       # "id" permite referenciar salidas de este paso en otros lugares.
+        run: |                                         # El contenido del script se evalúa en bash.
+          hash=$(echo -n "${{ env.LANG }}-${{ env.MONTH }}-${{ env.DAY }}" | sha256sum | cut -d ' ' -f1)
+                                                       # Crea un hash SHA-256 basado en idioma, mes y día (garantiza clave única).
+          echo "hash=$hash" >> $GITHUB_OUTPUT          # Publica "hash" como output de este step (disponible en steps.hash.outputs.hash).
+
+      - name: Restaurar cache de API                   # Paso 3: intenta restaurar "response.json" desde la caché.
+        id: cache-api
+        uses: actions/cache@v4                         # Usa la acción oficial de caché (v4).
+        with:
+          path: response.json                          # Archivo a restaurar/guardar en caché.
+          key: ${{ steps.hash.outputs.hash }}          # Clave de caché (si existe, trae el archivo; si no, luego lo guardará).
+
+      - name: Llamar API Wikimedia si no hay cache     # Paso 4: solo llama al API si NO hubo hit de caché.
+        if: steps.cache-api.outputs.cache-hit != 'true'# Condición ejecuta este paso cuando cache-hit es distinto de true.
+        run: |
+          curl -s "https://api.wikimedia.org/feed/v1/wikipedia/${{ env.LANG }}/onthisday/selected/${{ env.MONTH }}/${{ env.DAY }}" -o response.json
+                                                       # Descarga silenciosamente el JSON de Wikimedia y lo guarda como response.json.
+
+      - name: Extraer eventos                          # Paso 5: transforma el JSON en una lista compacta de {title, url}.
+        id: extract
+        run: |
+          events=$(jq -c '[.selected[] | {title: .pages[0].title, url: .pages[0].content_urls.desktop.page}]' response.json)
+                                                       # jq lee response.json y construye un arreglo de objetos compactos:
+                                                       # - title: título del primer "page" asociado al evento
+                                                       # - url:   URL de la versión de escritorio de esa página
+          echo "events=$events" >> $GITHUB_OUTPUT      # Publica la lista JSON como salida "events" del step (para otros jobs).
+
+  process-events:                                      # Segundo job: procesa cada evento individualmente.
+    name: Procesar eventos
+    needs: fetch-api                                   # Declara dependencia: espera a que termine "fetch-api" y usa sus outputs.
+    runs-on: ubuntu-latest                             # Runner Ubuntu para este job.
+    strategy:                                          # Estrategia de ejecución para matrices.
+      fail-fast: false                                 # Si un elemento de la matriz falla, no cancela los demás.
+      matrix:                                          # Define la matriz de ejecuciones paralelas.
+        event: ${{ fromJson(needs.fetch-api.outputs.events) }}
+                                                       # Convierte la cadena JSON de "events" en una matriz.
+                                                       # Cada elemento de "event" será un objeto con {title, url}.
+    steps:                                             # Pasos que se repetirán para CADA elemento de la matriz.
+      - name: Mostrar evento                           # Paso 1: logging de control.
+        run: |
+          echo "Título: ${{ matrix.event.title }}"     # Accede al campo title del elemento actual de la matriz.
+          echo "URL: ${{ matrix.event.url }}"          # Accede al campo url.
+
+      - name: Instalar wkhtmltopdf                     # Paso 2: instala la herramienta de conversión HTML→PDF.
+        run: sudo apt-get update && sudo apt-get install -y wkhtmltopdf
+                                                       # Actualiza índices y instala el paquete.
+
+      - name: Convertir página web a PDF               # Paso 3: convierte la URL del evento en PDF.
+        id: convert
+        run: |
+          safe_title=$(echo "${{ matrix.event.title }}" | tr -cd '[:alnum:]._-')
+                                                       # Sanitiza el título para usarlo en nombre de archivo (solo letras/números . _ -).
+          filename="${{ github.event.inputs.month }}-${{ github.event.inputs.day }}-${safe_title}.pdf"
+                                                       # Construye el nombre del PDF con MM-DD-TITULO.pdf (usa los inputs directos).
+          echo "FILENAME=$filename" >> $GITHUB_ENV     # Expone FILENAME a pasos siguientes de este job.
+          wkhtmltopdf --enable-local-file-access "${{ matrix.event.url }}" "$filename" || echo "Error al convertir PDF"
+                                                       # Genera el PDF. Si falla, no rompe el job (imprime mensaje y sigue).
+
+      - name: Subir artefacto PDF                      # Paso 4: sube el PDF como artefacto descargable.
+        uses: actions/upload-artifact@v4               # Acción oficial para subir artefactos.
+        with:
+          name: PDF-${{ matrix.event.title }}          # Nombre del artefacto (aparece en la UI). Usa el título del evento.
+          path: ${{ env.FILENAME }}                    # Ruta del archivo a subir (el PDF recién creado).
+          retention-days: 1                            # Cuántos días conservar el artefacto (1 día).

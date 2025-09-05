@@ -1,0 +1,21 @@
+name: Sumar 2 numeros
+
+on:
+  pull_request:
+    branches:
+      - 'feature/**'
+  schedule:
+    - cron: "35 14 * * 4"
+
+jobs:
+  sumar-numeros:
+    name: Sumar dos numeros y mostrar resultado
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sumar 2 numeros e imprimir el resultado
+        env:
+          A: 5
+          B: 10
+        run: |
+          resultado=$(($A + $B))
+          echo "La suma es: $resultado"
