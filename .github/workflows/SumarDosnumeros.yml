@@ -5,7 +5,7 @@ on:
     branches:
       - 'feature/**'
   schedule:
-    - cron: "35 14 * * 4" # 9:35 hora Colombia (UTC-5)
+    - cron: "35 14 * * 4"
 
 jobs:
   sumar-numeros:
