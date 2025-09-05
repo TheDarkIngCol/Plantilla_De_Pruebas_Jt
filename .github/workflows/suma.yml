@@ -3,7 +3,7 @@ name: Sumar 2 numeros
 on:
   pull_request:
     branches:
-      - 'feature/**'
+      - 'main/**'
   schedule:
     - cron: "35 14 * * 4"
 
