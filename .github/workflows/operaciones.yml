@@ -1,0 +1,77 @@
+name: Operaciones Matemáticas Básicas
+
+on:
+  workflow_dispatch:
+    inputs:
+      numero1:
+        description: 'Primer número'
+        required: true
+        type: string
+      numero2:
+        description: 'Segundo número'
+        required: true
+        type: string
+
+jobs:
+  preparar-valores:
+    name: 📦 Preparar variables globales
+    runs-on: ubuntu-latest
+    outputs:
+      num1: ${{ steps.variables.outputs.num1 }}
+      num2: ${{ steps.variables.outputs.num2 }}
+    steps:
+      - name: Asignar variables
+        id: variables
+        run: |
+          echo "num1=${{ inputs.numero1 }}" >> $GITHUB_OUTPUT
+          echo "num2=${{ inputs.numero2 }}" >> $GITHUB_OUTPUT
+
+  operaciones:
+    name: Ejecutar Operaciones
+    needs: preparar-valores
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        operacion: [suma, resta, multiplicacion, division]
+        include:
+          - operacion: division
+            experimental: true
+          - operacion: suma
+            experimental: false
+          - operacion: resta
+            experimental: false
+          - operacion: multiplicacion
+            experimental: false
+    continue-on-error: ${{ matrix.experimental }}
+    steps:
+      - name: Ejecutar ${{ matrix.operacion }}
+        run: |
+          NUM1=${{ needs.preparar-valores.outputs.num1 }}
+          NUM2=${{ needs.preparar-valores.outputs.num2 }}
+
+          case "${{ matrix.operacion }}" in
+            suma)
+              echo "Suma: $(($NUM1 + $NUM2))"
+              ;;
+            resta)
+              echo "Resta: $(($NUM1 - $NUM2))"
+              ;;
+            multiplicacion)
+              echo "✖️ Multiplicación: $(($NUM1 * $NUM2))"
+              ;;
+            division)
+              if [ "$NUM2" -eq 0 ]; then
+                echo "⚠️ División por cero no permitida"
+                exit 1
+              else
+                resultado=$(echo "scale=2; $NUM1 / $NUM2" | bc)
+                echo "➗ División: $resultado"
+              fi
+              ;;
+            *)
+              echo "❌ Operación desconocida: ${{ matrix.operacion }}"
+              exit 1
+              ;;
+          esac
+
+ 
